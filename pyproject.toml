@@ -1,0 +1,210 @@
+[project]
+name = "django-tasks-pgmq"
+description = "PGMQ backend for django-tasks"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+  { name = "Christian Hartung", email = "6785871+hartungstenio@users.noreply.github.com" },
+]
+keywords = ["django", "tasks", "pgmq", "postgresql"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Framework :: Django :: 6.0",
+  "Framework :: Django :: 6.1",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Internet :: WWW/HTTP",
+  "Typing :: Typed",
+]
+dependencies = [
+  "django (>=6.0)",
+  "django-tasks",
+  "pgmq",
+]
+dynamic = ["version"]
+
+[project.urls]
+Documentation = "https://github.com/hartungstenio/django-tasks-pgmq#readme"
+Issues = "https://github.com/hartungstenio/django-tasks-pgmq/issues"
+Source = "https://github.com/hartungstenio/django-tasks-pgmq"
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "pytest-asyncio",
+  "pytest-deadfixtures",
+  "pytest-django",
+  { include-group = "types" },
+]
+types = [
+  "django-stubs",
+  "mypy",
+  "pyrefly",
+]
+
+[build-system]
+requires = ["hatch-vcs", "hatchling"]
+build-backend = "hatchling.build"
+
+[tool.coverage.run]
+source_pkgs = ["django_tasks_pgmq", "tests"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+django_tasks_pgmq = ["src/django_tasks_pgmq", "*/django-tasks-pgmq/src/django_tasks_pgmq"]
+tests = ["tests", "*/django-tasks-pgmq/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+[tool.django-stubs]
+django_settings_module = "tests.testapp.settings"
+
+[tool.hatch]
+requires-hatch = ">=1.18.0"
+
+[tool.hatch.version]
+source = "vcs"
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.12", "3.13", "3.14"]
+
+[tool.hatch.envs.default]
+dependency-groups = ["dev"]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[tool.hatch.envs.hatch-check-types]
+dependency-groups = ["types"]
+
+[tool.hatch.envs.hatch-check-types.scripts]
+check = [
+  "pyrefly check{env:HATCH_CHECK_TYPES_ARGS:} {args}",
+  "mypy {args}",
+]
+
+[tool.hatch.envs.hatch-test]
+extra-dependencies = [
+  "pytest-asyncio",
+  "pytest-django",
+]
+
+[tool.hatch.envs.hatch-test.overrides]
+matrix.django.dependencies = [
+  { value = "django>=6.0,<6.1", if = ["6.0"] },
+  { value = "django>=6.1,<6.2", if = ["6.1"] },
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+django = ["6.0", "6.1"]
+python = ["3.12", "3.13", "3.14"]
+
+[tool.hatch.envs.hatch-static-analysis]
+config-path = "none"
+dependencies = ["ruff"]
+
+[tool.mypy]
+strict = true
+files = ["src"]
+enable_error_code = "deprecated"
+plugins = ["mypy_django_plugin.main"]
+
+[tool.pyrefly]
+project-includes = ["src"]
+preset = "strict"
+min-severity = "ignore"
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+DJANGO_SETTINGS_MODULE = "tests.testapp.settings"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+  "ERA",
+  "ANN",
+  "ASYNC",
+  "S",
+  "BLE",
+  "FBT",
+  "B",
+  "A",
+  "COM818",
+  "C4",
+  "DTZ",
+  "T10",
+  "DJ",
+  "EM",
+  "EXE",
+  "INT",
+  "ISC",
+  "ICN",
+  "LOG",
+  "G",
+  "PIE",
+  "T20",
+  "PYI",
+  "PT",
+  "RSE",
+  "RET",
+  "SLF",
+  "SIM",
+  "SLOT",
+  "TID",
+  "TD",
+  "TC",
+  "PTH",
+  "FLY",
+  "I",
+  "C90",
+  "N",
+  "PERF",
+  "E",
+  "W",
+  "D",
+  "F",
+  "PGH",
+  "PL",
+  "UP",
+  "FURB",
+  "RUF",
+  "TRY",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ruff.lint.per-file-ignores]
+"*/migrations/*.py" = ["D", "RUF012"]
+"tests/*.py" = ["D", "S101"]
